@@ -1,6 +1,7 @@
 import os,shutil,requests,time,threading
 from queue import Queue
 from mutagen.mp3 import MP3
+from prettytable import PrettyTable
 
 def run_forever(func):
 	def wrapper(obj):
@@ -14,6 +15,10 @@ class QiubaiSpider:
 		self.event= True
 		self.url='https://fanyi.baidu.com/gettts'
 		self.path=os.path.splitext(list)[0]
+		with open(list,encoding='utf-8')as f:
+				deal=f.read().replace('一秒记住♂小?说☆网 ，更新快，，免费读！','').replace('免费小说，无弹窗小说网，txt下载，请记住蚂蚁阅读网www.mayitxt.com','')
+		with open(list,'w',encoding='utf8')as f:
+			f.write(deal)
 		with open(list,encoding='utf-8')as f:
 			self.li_list=[i.strip() for i in f if i.strip()!='']
 		self.all_num=len(self.li_list)
@@ -175,46 +180,96 @@ def splice(path,name,num):
 	shutil.rmtree(os.path.join(path,num))
 #	'''
 
+def onput(num):
+	while True:
+		try:
+			put=int(input('请输入编号:'))
+			if num>=put>0:
+				break
+			elif put<=0:
+				print('输入大于0的数')
+			else:
+				print('输入最大值为%s'%str(num))
+
+		except ValueError:
+			print('请输入数字，请重新输入')
+	return put
+
+def get_name(n=1):
+	max=os.path.abspath(os.getcwd()).split(str(os.path.sep))
+	if 'storage' in max and 'emulated'in max and '0' in max:
+		print('检测到最大递归等级{}'.format(str(len(max)-4)))
+	else:
+		print('检测到最大递归等级{}'.format(str(len(max)-1)))
+	_path=os.getcwd()
+	print('递归等级:{}'.format(str(n)))
+	for i in range(n):
+		_path=os.path.abspath(os.path.join(_path, ".."))
+	paths=[]
+	for root,dirs,files in os.walk(_path):
+		for dir in dirs:
+			if dir=='小说下载':
+				paths.append(os.path.join(root ,'小说下载'))
+	names,dic=[],{}
+	for pa in paths:
+		for root,dirs,files in os.walk(pa):
+			for dir in dirs:
+				path_=os.path.join(root,dir)
+				dic[dir]=path_
+				names= names+[dir,]
+			break	
+	if names==[]:
+		return
+#	names=list(set(names))
+	x= PrettyTable(['编号','名字'])
+	n=1
+	for i in names:
+		x.add_row([str(n),i])
+		n+=1
+	print(x)
+	cname=names[onput(len(names))-1]
+	return (cname,dic.get(cname))
 
 
 
 
+def main(path='.'):
+	count=20
+	first_path='music'
+	# for root,dirs,files in os.walk(path_):
+	# 	paths=[(os.path.abspath(i),os.path.basename(i)) for i in dirs if root==path_]
+	# 	break
+	# x= PrettyTable(['编号','名字'])
+	# n=1
+	# for path,name in paths:
+	# 	x.add_row([str(n),name])
+	# 	n+=1
+	# print(x)
+	# path=paths[onput(len([paths])+1)-1]
+	# print(path)
+
+	if os.path.exists(os.path.join(path[0],'book')):
+		os.remove(os.path.join(path[0],'book'))
+	if os.path.exists(os.path.join(path[0],'cover.jpg')):
+		os.remove(os.path.join(path[0],'cover.jpg'))
+
+	#'''
+	names=[(i.split('.')[0],os.path.join(path[0],i)) for i in [i[-1] for i in os.walk(path[0])][0]]
+	names.sort()
+	# print(names)
+	for num,name in names[:]:
+		print('正在进行:',num)
+		QiubaiSpider(name,(count,count)).run()
+		print('开始合并')
+		splice(path[0],os.path.join(path[0],first_path),num)
+	#'''
 
 
-count=20
-first_path='music'
-path=[i[0].replace('.\\','') for i in os.walk('.') if i[0] !='.' and i[0].replace('.\\','').find('\\')<0]
-print(path)
-if os.path.exists(os.path.join(path[0],'book')):
-	os.remove(os.path.join(path[0],'book'))
-if os.path.exists(os.path.join(path[0],'cover.jpg')):
-	os.remove(os.path.join(path[0],'cover.jpg'))
-#'''
-names=[(i.split('.')[0],os.path.join(path[0],i)) for i in [i[-1] for i in os.walk(path[0])][0]]
-names.sort()
-for num,name in names:
-	print('正在进行:',num)
-	QiubaiSpider(name,(count,count)).run()
-	print('开始合并')
-	splice(path[0],os.path.join(path[0],first_path),num)
-#'''
-
-'''
-count = 20
-first_path = 'music'
-del_list = ('.git','.idea','venv','旧文件')
-paths = [i for i in os.listdir() if os.path.isdir(i) and i not in del_list]
-path=paths[0]
-# print(path)
-
-names=[(i.split('.')[0],os.path.join(path,i)) for i in [i[-1] for i in os.walk(path)][0]]
-names.sort()
-for num,name in names:
-	print('正在进行:',num)
-	QiubaiSpider(name,(count,count)).run()
-	print('开始合并')
-	splice(path,os.path.join(path,first_path),num)
-	break
-'''
-
-
+if __name__=='__main__':
+	data=get_name(2)
+	if data:
+		a,b=data
+		path=b,a
+		main(path)
+	else:
+		print('未检测到文件')
