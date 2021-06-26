@@ -224,6 +224,8 @@ def get_name(n=1):
 		x.add_row([str(n), i])
 		n += 1
 	print(x)
+	if len(names) == 1:
+		return list(dic.items())[0]
 	cname = names[onput(len(names)) - 1]
 	return (cname, dic.get(cname))
 
@@ -231,22 +233,46 @@ def get_name(n=1):
 def main(path='.'):
 	count = 20
 	first_path = 'music'
-=
+
+
 	if os.path.exists(os.path.join(path[0], 'book')):
 		os.remove(os.path.join(path[0], 'book'))
 	if os.path.exists(os.path.join(path[0], 'cover.jpg')):
 		os.remove(os.path.join(path[0], 'cover.jpg'))
 
 	# '''
-	names = [(i.split('.')[0], os.path.join(path[0], i)) for i in [i[-1] for i in os.walk(path[0])][0]]
-	names.sort()
+	# names = [(i.split('.')[0], os.path.join(path[0], i)) for i in [i[-1] for i in os.walk(path[0])][0]]
+	# names.sort()
 	# print(names)
+
+	# 取出对应文件夹的文件列表
+	paths = [i for i in [os.path.join(path[0],i) for i in os.listdir(path[0])] if not os.path.isdir(i)]
+	# print(paths)
+	# 数据进行格式化
+	datas = [(os.path.splitext(os.path.split(i)[-1])[0],i) for i in paths]
+
+	#建立了筛选的列表
+	filter_datas = os.listdir(os.path.join(path[0],first_path))
+	dic ={i[0]:0 for i in datas}
+	for i in filter_datas:
+		if os.path.splitext(i)[-1] in ('.lrc','.mp3'):
+			dic[os.path.splitext(i)[0]]+=1
+	last_names,filter_names=[],[]
+	for k,v in dic.items():
+		if v != 2:
+			last_names+=[k,]
+		else:
+			filter_names+=[k,]
+	if filter_names!=[]:
+		print('检测到：',filter_names,'已经存在，已经自动去除')
+	names = [(k,v) for k,v in datas if k in last_names]
+	# '''
 	for num, name in names[:]:
 		print('正在进行:', num)
 		QiubaiSpider(name, (count, count)).run()
 		print('开始合并')
 		splice(path[0], os.path.join(path[0], first_path), num)
-
+	# '''
 
 # '''
 
