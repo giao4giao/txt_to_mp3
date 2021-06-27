@@ -270,13 +270,13 @@ def main(path='.'):
 	if filter_names!=[]:
 		print('检测到：',filter_names,'已经存在，已经自动去除')
 	names = [(k,v) for k,v in datas if k in last_names]
-	'''
+
 	for num, name in names[:]:
 		print('正在进行:', num)
 		QiubaiSpider(name, (count, count)).run()
 		print('开始合并')
 		splice(path[0], os.path.join(path[0], first_path), num)
-	'''
+
 
 # '''
 
