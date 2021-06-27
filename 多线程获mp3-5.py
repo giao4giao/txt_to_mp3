@@ -234,11 +234,15 @@ def main(path='.'):
 	count = 20
 	first_path = 'music'
 
-
-	if os.path.exists(os.path.join(path[0], 'book')):
-		os.remove(os.path.join(path[0], 'book'))
-	if os.path.exists(os.path.join(path[0], 'cover.jpg')):
-		os.remove(os.path.join(path[0], 'cover.jpg'))
+	# 删除一些可能引发问题的内容
+	del_paths = [i for i in [os.path.join(path[0],i) for i in os.listdir(path[0])] if os.path.isdir(i) and os.path.split(i)[-1] not in (first_path,)]
+	del_paths+=('book','cover.jpg')
+	for i in del_paths:
+		if os.path.exists(os.path.join(path[0], i)):
+			if os.path.isfile(i):
+				os.remove(os.path.join(path[0], i))
+			else:
+				shutil.rmtree(i)
 
 	# '''
 	# names = [(i.split('.')[0], os.path.join(path[0], i)) for i in [i[-1] for i in os.walk(path[0])][0]]
@@ -266,13 +270,13 @@ def main(path='.'):
 	if filter_names!=[]:
 		print('检测到：',filter_names,'已经存在，已经自动去除')
 	names = [(k,v) for k,v in datas if k in last_names]
-	# '''
+	'''
 	for num, name in names[:]:
 		print('正在进行:', num)
 		QiubaiSpider(name, (count, count)).run()
 		print('开始合并')
 		splice(path[0], os.path.join(path[0], first_path), num)
-	# '''
+	'''
 
 # '''
 
