@@ -236,7 +236,9 @@ def main(path='.'):
 
 	# 删除一些可能引发问题的内容
 	del_paths = [i for i in [os.path.join(path[0],i) for i in os.listdir(path[0])] if os.path.isdir(i) and os.path.split(i)[-1] not in (first_path,)]
-	del_paths+=('book','cover.jpg')
+	del_paths+= [os.path.join(path[0],i) for i in ('book','cover.jpg')]
+
+
 	for i in del_paths:
 		if os.path.exists(os.path.join(path[0], i)):
 			if os.path.isfile(i):
@@ -251,12 +253,16 @@ def main(path='.'):
 
 	# 取出对应文件夹的文件列表
 	paths = [i for i in [os.path.join(path[0],i) for i in os.listdir(path[0])] if not os.path.isdir(i)]
+	# paths.sort()
 	# print(paths)
 	# 数据进行格式化
 	datas = [(os.path.splitext(os.path.split(i)[-1])[0],i) for i in paths]
 
 	#建立了筛选的列表
-	filter_datas = os.listdir(os.path.join(path[0],first_path))
+	if os.path.isdir(os.path.join(path[0],first_path)):
+		filter_datas = os.listdir(os.path.join(path[0],first_path))
+	else:
+		filter_datas = []
 	dic ={i[0]:0 for i in datas}
 	for i in filter_datas:
 		if os.path.splitext(i)[-1] in ('.lrc','.mp3'):
@@ -278,7 +284,7 @@ def main(path='.'):
 		splice(path[0], os.path.join(path[0], first_path), num)
 
 
-# '''
+	# '''
 
 
 if __name__ == '__main__':
