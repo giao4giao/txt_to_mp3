@@ -234,6 +234,18 @@ def main(path='.'):
 	count = 20
 	first_path = 'music'
 
+	#为内容补上零。
+	i_s = [i for i in [os.path.join(path[0], i) for i in os.listdir(path[0])] if not os.path.isdir(i)]
+	max_num = len(str(max([int(os.path.splitext(os.path.split(i)[-1])[0]) for i in i_s])))
+	min_num = len(str(min([int(os.path.splitext(os.path.split(i)[-1])[0]) for i in i_s])))
+	if max_num != min_num:
+		change_name_list=[(i,os.path.join(path[0],((os.path.splitext(os.path.split(i)[-1])[0]).zfill(max_num)+os.path.splitext(i)[-1]))) for i in i_s]
+		for k,v in change_name_list:
+			if k != v :
+				if os.path.isfile(k):
+					os.rename(k,v)
+
+
 	# 删除一些可能引发问题的内容
 	del_paths = [i for i in [os.path.join(path[0],i) for i in os.listdir(path[0])] if os.path.isdir(i) and os.path.split(i)[-1] not in (first_path,)]
 	del_paths+= [os.path.join(path[0],i) for i in ('book','cover.jpg')]
@@ -277,14 +289,15 @@ def main(path='.'):
 		print('检测到：',filter_names,'已经存在，已经自动去除')
 	names = [(k,v) for k,v in datas if k in last_names]
 
+	# '''
+	# 开始遍历运行
 	for num, name in names[:]:
 		print('正在进行:', num)
 		QiubaiSpider(name, (count, count)).run()
 		print('开始合并')
 		splice(path[0], os.path.join(path[0], first_path), num)
-
-
 	# '''
+
 
 
 if __name__ == '__main__':
