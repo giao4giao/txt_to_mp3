@@ -287,7 +287,11 @@ def main(path='.'):
 		else:
 			filter_names+=[k,]
 	if filter_names!=[]:
-		print('检测到：',filter_names,'已经存在，已经自动去除')
+		if len(filter_names)<=15:
+			print('检测到：',filter_names,'已经存在，已经自动去除')
+		else:
+			print('检测到：',len(filter_names),'个已经存在，已经自动去除')
+
 	names = [(k,v) for k,v in datas if k in last_names]
 
 	# '''
